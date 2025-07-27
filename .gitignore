@@ -1,0 +1,8 @@
+.env
+*.zip
+*.7z
+
+_old
+zipNsend_iOS_edit.py
+
+*.csv
