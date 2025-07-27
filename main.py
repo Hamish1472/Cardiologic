@@ -2,55 +2,93 @@ import shutil
 from config import *
 import functions.csv_utils, functions.email_utils, functions.encryption_utils, functions.sms_utils
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    # Ensure output folders exist
+    os.makedirs(SUCCESSFUL_PDFS, exist_ok=True)
+    os.makedirs(FAILED_PDFS, exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_FOLDER, "tmp"), exist_ok=True)
+
     for filename in os.listdir(INPUT_PDF_FOLDER):
         if filename.endswith(".pdf"):
+
+            # Set paths and email
             pdf_path = os.path.join(INPUT_PDF_FOLDER, filename)
             email_address = os.path.splitext(filename)[0]
             archive_name = f"{email_address}.7z"
-            archive_path = os.path.join(OUTPUT_FOLDER, archive_name)
-    
+            archive_path = os.path.join(OUTPUT_FOLDER, "tmp", archive_name)
+
             # Generate password
             password = functions.encryption_utils.generate_password()
-    
-            # Compress and encrypt
+            pdf_was_encrypted = False
+
             try:
-                functions.encryption_utils.compress_pdf(pdf_path, archive_path, password)
-                with open('password_log.txt', 'a') as file:
+                # Get Phone from Email
+                phone_number = functions.csv_utils.get_phone_number_from_email(
+                    CSV_PATH, email_address
+                )
+
+                # Compress and encrypt
+                functions.encryption_utils.compress_pdf(
+                    pdf_path, archive_path, password
+                )
+                pdf_was_encrypted = True
+                with open("password_log.txt", "a") as file:
                     file.write(f"\n{filename} | {password}")
                 print(f"Encrypted archive created: {archive_path}")
-    
+
                 # Wrap inside zip
                 zip_name = f"{email_address}.zip"
-                zip_path = os.path.join(OUTPUT_FOLDER, zip_name)
+                zip_path = os.path.join(OUTPUT_FOLDER, "tmp", zip_name)
                 functions.encryption_utils.zip_archive(archive_path, zip_path)
                 print(f"ZIP archive created: {zip_path}")
-    
-                # Get Phone from Email
-                phone_number = functions.csv_utils.get_phone_number_from_email(CSV_PATH, email_address)
-    
+
+                base_body = (
+                    "Hello,\n\nPlease find your encrypted PDF archive attached.\n"
+                )
+
+                subject = "Encrypted PDF Archive"
+
+                # Determine SMS / password info
                 if phone_number == "Email or phone number not found":
                     print(f"Phone number not found for {email_address}, skipping SMS.")
-                    body = f"Hello,\n\nPlease find your encrypted PDF archive attached.\nPhone number not found in our records. Please contact us for the password."
+                    password_info = "Phone number not found in our records. Please contact us for the password."
                 else:
-                    # Send Password via SMS
+                    password_info = (
+                        f"Password sent to provided contact number: {phone_number}"
+                    )
+
+                # Now finalize body before sending the email
+                full_body = base_body + password_info
+
+                # Attempt to send the email
+                functions.email_utils.send_email(
+                    email_address, subject, full_body, zip_path
+                )
+
+                # Only send SMS if email succeeded and phone number was found
+                if phone_number != "Email or phone number not found":
                     functions.sms_utils.send_sms(
                         VONAGE_API_KEY,
                         VONAGE_API_SECRET,
-                        "44" + phone_number,
+                        phone_number,
                         SMS_SENDER_ID,
                         password,
                     )
-                    body = f"Hello,\n\nPlease find your encrypted PDF archive attached.\nPassword sent to provided contact number: {'*' * (len(phone_number) - 4) + phone_number[-4:]}"
-    
-                # Send ZIP via Email
-                subject = "Encrypted PDF Archive"
-                functions.email_utils.send_email(email_address, subject, body, zip_path)
-                
-                shutil.move(pdf_path, SUCCESSFUL_PDFS +"/")
-                os.remove(archive_path)
-    
+
+                shutil.move(zip_path, SUCCESSFUL_PDFS)
+
             except Exception as e:
                 print(f"Failed for {filename}: {e}")
-                functions.email_utils.send_email(EMAIL_SENDER, "Failed PDF Pipeline", f"The pipeline failed for PDF: {filename} with exception: {e}", pdf_path)
-                shutil.move(pdf_path, FAILED_PDFS + "/")
+                functions.email_utils.send_email(
+                    EMAIL_SENDER,
+                    "Failed PDF Pipeline",
+                    f"The pipeline failed for PDF: {filename} with exception: {e}",
+                )
+                if pdf_was_encrypted:
+                    shutil.move(zip_path, FAILED_PDFS)
+                else:
+                    shutil.move(pdf_path, FAILED_PDF_ENCRYPTIONS)
+
+            os.remove(pdf_path)
+
+    shutil.rmtree(os.path.join(OUTPUT_FOLDER, "tmp"))
