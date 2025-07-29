@@ -1,13 +1,13 @@
 .env
+.github
 *.zip
 *.7z
-
-_old
-zipNsend_iOS_edit.py
-
 *.csv
 *.pdf
 
+.vscode
 __pycache__
+_old
+logs
 
 password_log.txt

@@ -9,7 +9,7 @@ def send_sms(API_Key, API_Secret, SMS_Recipient, SMS_SENDER_ID, Password):
     message = SmsMessage(
         to=SMS_Recipient,
         from_=SMS_SENDER_ID,
-        text=f"Do Not Reply\n\nPassword to PDF: {Password}\n\nPlease check your spam folder for an email from {EMAIL_SENDER} if you have not received the PDF",
+        text=f"Do Not Reply\n\nPassword to PDF:\n\n{Password}\n\nPlease check your spam folder for an email from {EMAIL_SENDER} if you have not received the PDF",
     )
 
     response: SmsResponse = client.sms.send(message)

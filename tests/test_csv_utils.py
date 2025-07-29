@@ -8,8 +8,13 @@ from functions.csv_utils import (
 
 def test_parse_international_phone_number_valid():
     assert parse_international_phone_number("+4407368166834") == "+447368166834"
+    assert parse_international_phone_number("+44 07368 166834") == "+447368166834"
     assert parse_international_phone_number("447368166834") == "+447368166834"
-    assert parse_international_phone_number("+15555555555") == "+15555555555"
+    assert parse_international_phone_number("44 7368 166834") == "+447368166834"
+    assert parse_international_phone_number("+12125551212") == "+12125551212"
+    assert parse_international_phone_number("+1 212 5551212") == "+12125551212"
+    assert parse_international_phone_number("+1 212-5551212") == "+12125551212"
+    assert parse_international_phone_number("+33477712559") == "+33477712559"
 
 
 def test_parse_international_phone_number_invalid():
@@ -33,7 +38,7 @@ def test_get_phone_number_from_email(tmp_path):
                 "TestCorp",
                 "Engineer",
                 "jane@example.com",
-                "+15555555555",
+                "+12125551212",
             ]
         )
 
@@ -42,7 +47,7 @@ def test_get_phone_number_from_email(tmp_path):
     assert result == "+447368166834"
 
     result = get_phone_number_from_email(str(csv_file), "jane@example.com")
-    assert result == "+15555555555"
+    assert result == "+12125551212"
 
     # Invalid email
     result = get_phone_number_from_email(str(csv_file), "nobody@example.com")

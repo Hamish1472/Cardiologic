@@ -1,0 +1,5 @@
+phonenumbers==9.0.10
+pytest==8.4.1
+python-dotenv==1.1.1
+vonage==4.4.3
+vonage_sms==1.1.6

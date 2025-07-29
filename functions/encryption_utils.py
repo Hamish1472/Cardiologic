@@ -14,7 +14,15 @@ def generate_password(length=16):
 
 def compress_pdf(pdf_path, archive_path, password):
     """Compress a PDF file using 7-Zip with AES-256 encryption."""
-    cmd = [SEVEN_ZIP_PATH, "a", archive_path, pdf_path, f"-p{password}", "-mhe=on"]
+    cmd = [
+        SEVEN_ZIP_PATH,
+        "a",
+        "-t7z",
+        archive_path,
+        pdf_path,
+        f"-p{password}",
+        "-mhe=on",
+    ]
     subprocess.run(cmd, check=True)
 
 
