@@ -33,7 +33,6 @@ def parse_international_phone_number(phone_number):
 
     try:
         parsed = phonenumbers.parse(phone_number, None)
-        print("parsed", parsed)
         if phonenumbers.is_valid_number(parsed):
             formatted = phonenumbers.format_number(
                 parsed, phonenumbers.PhoneNumberFormat.E164

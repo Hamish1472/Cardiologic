@@ -12,10 +12,10 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 INPUT_PDF_FOLDER = "input_pdfs"
 OUTPUT_FOLDER = "output_archives"
 SMS_SENDER_ID = "Cardiologic"
-CSV_PATH = "ECG Consent - Sheet1(1).csv"
+CSV_PATH = "data/ECG Consent - Sheet1(1).csv"
 SUCCESSFUL_PDFS = "output_archives/sent/"
 FAILED_PDFS = "output_archives/failed_to_send/"
-FAILED_PDF_ENCRYPTIONS = "input_pdfs/failed"
+FAILED_PDF_ENCRYPTIONS = "input_pdfs/failed_to_encrypt"
 
 
 SEVEN_ZIP_PATH = "7z"  # or full path e.g., "C:/Program Files/7-Zip/7z.exe"

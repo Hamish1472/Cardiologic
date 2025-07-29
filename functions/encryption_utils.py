@@ -4,12 +4,37 @@ import shutil
 import secrets
 import string
 from config import *
+import sqlite3
+from datetime import datetime
 
 
 def generate_password(length=16):
     """Generates a secure random password."""
     alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
     return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+def store_password(db_path, filename, password):
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS passwords (
+            filename TEXT PRIMARY KEY,
+            password TEXT NOT NULL,
+            timestamp TEXT NOT NULL
+        )
+    """
+    )
+    c.execute(
+        """
+        INSERT OR REPLACE INTO passwords (filename, password, timestamp)
+        VALUES (?, ?, ?)
+    """,
+        (filename, password, datetime.now().isoformat()),
+    )
+    conn.commit()
+    conn.close()
 
 
 def compress_pdf(pdf_path, archive_path, password):
