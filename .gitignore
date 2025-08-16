@@ -9,3 +9,5 @@ __pycache__
 _old
 logs
 data
+POSTMAN
+seen_ids.json

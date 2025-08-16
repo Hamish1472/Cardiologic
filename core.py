@@ -7,7 +7,7 @@ import time
 
 
 os.makedirs("logs", exist_ok=True)
-log_filename = f"logs/main_{datetime.now().strftime('%Y-%m-%d')}.log"
+log_filename = f"logs/core_{datetime.now().strftime('%Y-%m-%d')}.log"
 logging.basicConfig(
     filename=log_filename,
     level=logging.INFO,
@@ -19,8 +19,10 @@ if __name__ == "__main__":
 
     os.makedirs(SUCCESSFUL_PDFS, exist_ok=True)
     os.makedirs(FAILED_PDFS, exist_ok=True)
+    os.makedirs(FAILED_PDF_ENCRYPTIONS, exist_ok=True)
 
-    tmp_path = os.path.join(OUTPUT_FOLDER, "tmp")
+    tmp_path = os.path.join(INPUT_PDF_FOLDER, "tmp")
+    # tmp_path = os.path.join(OUTPUT_FOLDER, "tmp")
     if os.path.exists(tmp_path):
         try:
             shutil.rmtree(tmp_path)
@@ -76,13 +78,13 @@ if __name__ == "__main__":
             pdf_was_encrypted = True
 
             functions.encryption_utils.store_password(
-                "data/passwords.db", filename, password
+                "data/passwords.db", archive_name, password
             )
 
             logging.info(f"Encrypted archive created: {archive_path}")
 
             zip_name = f"{email_address}.zip"
-            zip_path = os.path.join(OUTPUT_FOLDER, "tmp", zip_name)
+            zip_path = os.path.join(INPUT_PDF_FOLDER, "tmp", zip_name)
             functions.encryption_utils.zip_archive(archive_path, zip_path)
             logging.info(f"ZIP archive created: {zip_path}")
 
@@ -104,6 +106,9 @@ if __name__ == "__main__":
 
             functions.email_utils.send_email(
                 email_address, subject, full_body, zip_path
+            )
+            logging.info(
+                f"Email sent with encrypted PDF.\nRecicpient: {email_address}\nFilename: {archive_name}"
             )
 
             if phone_number != "Email or phone number not found":
@@ -137,5 +142,5 @@ if __name__ == "__main__":
         logging.info("=" * 80)
 
     time.sleep(1)
-    shutil.rmtree(os.path.join(OUTPUT_FOLDER, "tmp"))
+    shutil.rmtree(os.path.join(INPUT_PDF_FOLDER, "tmp"))
     print(f"Log created/appended: {log_filename}")

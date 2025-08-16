@@ -23,16 +23,16 @@ SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
 
-HOSTNAME = "https://your-api-host.com"
+HOSTNAME = "https://fr-qtm-api.qtmedical.com"
 OAUTH_URL = f"{HOSTNAME}/oauth/token"
-LOGIN_URL = f"{HOSTNAME}/api/v1/user/login"
 STUDIES_URL = f"{HOSTNAME}/api/v1/studies"
-DOWNLOAD_URL_TEMPLATE = f"{HOSTNAME}/api/v1/studies/{{sid}}/download"
+STUDY_STATUS_URL = f"{HOSTNAME}/api/v1/study/status/{{sid}}"
+PDF_URL = f"{HOSTNAME}/api/v1/study/pdf/{{sid}}"
 
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-USERNAME = os.getenv("USERNAME")
-PASSWORD = os.getenv("PASSWORD")
+QT_USERNAME = os.getenv("QT_USERNAME")
+QT_PASSWORD = os.getenv("QT_PASSWORD")
 
 POLL_INTERVAL = 60  # in seconds
 SEEN_IDS_FILE = "seen_ids.json"

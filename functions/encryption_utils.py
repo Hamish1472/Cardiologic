@@ -10,7 +10,7 @@ from datetime import datetime
 
 def generate_password(length=16):
     """Generates a secure random password."""
-    alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
+    alphabet = string.ascii_letters + string.digits
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
@@ -39,16 +39,17 @@ def store_password(db_path, filename, password):
 
 def compress_pdf(pdf_path, archive_path, password):
     """Compress a PDF file using 7-Zip with AES-256 encryption."""
+    rel_archive_path = os.path.relpath(archive_path, start="input_pdfs")
     cmd = [
         SEVEN_ZIP_PATH,
         "a",
         "-t7z",
-        archive_path,
-        pdf_path,
+        rel_archive_path,
+        pdf_path.split("\\")[-1],
         f"-p{password}",
         "-mhe=on",
     ]
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True, cwd=pdf_path.split("\\")[0])
 
 
 def zip_archive(archive_path, zip_path):
